@@ -1,0 +1,98 @@
+
+---
+title: "Statistical Inference - Course Project 1"
+author: "K H CHEN"
+date: "20 Feb 2015"
+output: pdf_document
+---
+
+## About This Project
+
+This is to investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.
+
+
+# PART 1: Simulation 
+
+```{r simulations, echo=TRUE}
+
+# 1. Setting Environment #
+library(ggplot2)
+set.seed(10)
+lambda <- 0.2
+
+# 2. Generating Simulations #
+samplesize <- 40
+simulation <- 1000
+
+# 3. Storing Simulations #
+simulated_exponential <- matrix(rexp(simulation*samplesize, rate=lambda), simulation, samplesize)
+
+# 4. Getting the average of 40 exponentials from the simulations
+row_means <- rowMeans(simulated_exponential)
+```  
+
+# PART 2: Inferential Data Analysis
+
+## A. Sample Mean versus Theoretical Mean 
+  
+```{r Q1, echo=TRUE}
+# 1. Calculating the Mean of Distribution #
+mean(row_means)
+
+# 2. Cuoutputing the Mean of Analytical Expression #
+1/lambda
+```  
+
+The distribution of sample means is shown below:  
+  
+```{r hs, echo=FALSE}
+# 3. Ploting the Histogram of Averages #
+hist(row_means, breaks=50, prob=TRUE,
+     main="Distribution of the mean of samples,
+     generated from exponential distribution with lambda=0.2",
+     xlab="", col="grey")
+
+# 4. Ploting the Density of the Mean #
+lines(density(row_means), col="blue")
+
+# 5. Ploting the Theoretical Center of Distribution #
+abline(v=1/lambda, col="red")
+# theoretical density of the averages of samples
+xfit <- seq(min(row_means), max(row_means), length=100)
+yfit <- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(samplesize)))
+lines(xfit, yfit, pch=22, col="blue", lty=2)
+
+# 6. Adding legend
+legend('topright', c("simul. dist.", "theoretical dist."), lty=c(1,2), col=c("blue", "blue"))
+```  
+
+The distribution of mean of 40 exponentials is centered at `r mean(row_means)` and it is shown to be close to the theoretical center of the distribution,(1/$\lambda^{-1}$ =  1/$\lambda$).    
+
+##  B. Sample Variance versus Theoretical Variance
+
+```{r Q2, echo=TRUE}
+# 1. Calculating the Standard Deviation of Mean #
+sd(row_means)
+
+# 2. Calculating the Standard Deviation from Theoretical Distribution Expression #
+(1/lambda)/sqrt(samplesize)
+
+# 3. Calculating the Variance of the Sample Mean #
+var(row_means)
+
+# 4. Calculating the Theoretical Variance of the Distribution #
+1/((0.2*0.2) * 40)
+```  
+
+This shows that the simulated variance of the 40 exponential distribution is close to the theoretical variance of the distribution.  
+
+## C. Distribution
+  
+```{r Q3, echo=FALSE}    
+# 1. Comparing the Distribution of Averages to a Normal Distribution #
+qqnorm(row_means, col="grey")
+qqline(row_means, col = 2)
+```  
+
+
+The average of the generated samples follows the normal distribution based on the Central Limit Theorem (CLT). It also shows that the distribution of averages of 40 exponentials is approximated to close to a normal distribution.   
